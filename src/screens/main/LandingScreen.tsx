@@ -1,15 +1,33 @@
-import React, {FC, useState} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import PokemonCard from '../../components/PokemonCard';
-import {DATA} from '../../utils/tempData';
 
-//https://pokeapi.co/api/v2/pokemon?limit=150
+import {getpokemon} from '../../utils/api';
 
 const LandingScreen: FC = () => {
-  const renderItem = ({item}: any) => (
-    <View style={{marginVertical: 7, marginTop: 15}}>
+  const [data, setData] = useState<any>([]);
+  useEffect(() => {
+    getpokemon().then(response => {
+      console.log(response.data);
+      setData(response.data.results);
+    });
+  }, []);
+
+  // const paddedId = ('00' + (index + 1)).slice(-3);
+
+  // const image = `https://assets.pokemon.com/assets/cms2/img/pokedex/detail/${paddedId}.png`
+
+  const renderItem = (item: any, index: number) => (
+    <View style={{marginVertical: 7, marginTop: 10}}>
       <TouchableOpacity>
-        <PokemonCard name={item.name} key={item.name} />
+        <PokemonCard
+          name={item.name}
+          image={`https://assets.pokemon.com/assets/cms2/img/pokedex/detail/${(
+            '00' +
+            (index + 1)
+          ).slice(-3)}.png`}
+          key={index}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -19,8 +37,8 @@ const LandingScreen: FC = () => {
       <View style={styles.container}>
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={DATA}
-          renderItem={renderItem}
+          data={data}
+          renderItem={({item, index}) => renderItem(item, index)}
           keyExtractor={item => item.name}
         />
       </View>
